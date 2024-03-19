@@ -38,14 +38,14 @@ function mkrequest(url, response) {
 					}
 				} else {
 					chrome.notifications.clear('notif', function(id) { console.log("Last error:", chrome.runtime.lastError); });
-					alert("Error during requesting from server ! Make sure the ip/port are corrects, and the server is running.");
+					alert("Error during requesting from server ! Make sure the ip/port are corrects, and the server is running!!.");
 				}
 			}
 		};
 		req.send(null);
 	} 
 	catch(err) {
-		alert("Error ! Make sure the ip/port are corrects, and the server is running.")
+		alert("Error ! Make sure the ip/port are corrects, and the server is running.!!!")
 		return "wrong";
 	}
 }

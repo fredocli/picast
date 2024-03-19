@@ -59,7 +59,7 @@ function show(message) {
 
 function test() {
 	try {
-		var newURL = "http://"+localStorage.getItem('raspip')+":2020/running";
+		var newURL = "http://"+localStorage.getItem('raspip')+":2020/"; ///running
 		show("Loading...");
 		var req = new XMLHttpRequest();
 		req.open('GET', newURL, true);
