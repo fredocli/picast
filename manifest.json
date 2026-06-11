@@ -1,14 +1,17 @@
 {
-
-   "background": {
-      "service_worker": "js/background.js"
-   },
-   "icons": {
-      "16": "img/icon16.png",
-      "48": "img/icon48.png",
-      "128": "img/icon128.png"
+  "manifest_version": 3,
+  "name": "picast",
+  "description": "Share videos to Rpi",
+  "version": "1.0.0",
+  "icons": {
+    "16": "img/icon16.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
   },
-"action": {
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "action": {
     "default_icon": {
       "16": "img/icon16.png",
       "48": "img/icon48.png",
@@ -16,13 +19,24 @@
     },
     "default_title": "Pi Cast",
     "default_popup": "popup.html"
- },
-   "options_page": "options.html",
-   "manifest_version": 3,
-   "name": "picast",
-   "description": "Share videos to Rpi",
-   "permissions": [ "contextMenus", "tabs", "notifications" ],
-   "version": "1.0.0"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "notifications",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "commands": {
+    "run-music-dl": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "mac": "Command+Shift+M"
+      },
+      "description": "Run music-dl on the current page"
+    }
+  }
 }
-
-

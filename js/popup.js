@@ -1,44 +1,52 @@
 function handlers() {
 
+	$( "#musicdl" ).click(function() {
+		chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+			var url_encoded = encodeURIComponent(tabs[0].url);
+			chrome.runtime.sendMessage({action: "mkrequest", url: "/music-dl?url=" + url_encoded, response: 1});
+			window.close();
+		});
+	});
+
 	$( "#castbtn" ).click(function() {
 		chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
 			var url_encoded = encodeURIComponent(tabs[0].url);
-			chrome.extension.getBackgroundPage().mkrequest("/stream?url=" + url_encoded + "&slow="+localStorage.modeslow, 1);
+			chrome.runtime.sendMessage({action: "mkrequest", url: "/stream?url=" + url_encoded, response: 1});
+			window.close();
 		});
-		window.close();
 	});
 
 	$( "#addqueue" ).click(function() {
 		chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
 			var url_encoded = encodeURIComponent(tabs[0].url);
-			chrome.extension.getBackgroundPage().mkrequest("/queue?url="+url_encoded + "&slow="+localStorage.modeslow, 1);
+			chrome.runtime.sendMessage({action: "mkrequest", url: "/queue?url=" + url_encoded, response: 1});
+			window.close();	
 		});
-		window.close();	
 	});	
 
 	$( "#pause" ).click(function() {
-		chrome.extension.getBackgroundPage().mkrequest("/video?control=pause", 0);
+		chrome.runtime.sendMessage({action: "mkrequest", url: "/video?control=pause", response: 0});
 	});	
 
 	$( "#stop" ).click(function() {
-		chrome.extension.getBackgroundPage().mkrequest("/video?control=stop", 0);
+		chrome.runtime.sendMessage({action: "mkrequest", url: "/video?control=stop", response: 0});
 		window.close();
 	});
 	
 	$( "#backward" ).click(function() {
-		chrome.extension.getBackgroundPage().mkrequest("/video?control=left", 0);
+		chrome.runtime.sendMessage({action: "mkrequest", url: "/video?control=left", response: 0});
 	});
 	
 	$( "#forward" ).click(function() {
-		chrome.extension.getBackgroundPage().mkrequest("/video?control=right", 0);
+		chrome.runtime.sendMessage({action: "mkrequest", url: "/video?control=right", response: 0});
 	});
 	
 	$( "#vol_down" ).click(function() {
-		chrome.extension.getBackgroundPage().mkrequest("/sound?vol=less", 0);
+		chrome.runtime.sendMessage({action: "mkrequest", url: "/sound?vol=less", response: 0});
 	});
 	
 	$( "#vol_up" ).click(function() {
-		chrome.extension.getBackgroundPage().mkrequest("/sound?vol=more", 0);
+		chrome.runtime.sendMessage({action: "mkrequest", url: "/sound?vol=more", response: 0});
 	});
 }
 
@@ -58,35 +66,29 @@ function show(message) {
 }
 
 function test() {
-	try {
-		var newURL = "http://"+localStorage.getItem('raspip')+":2020/"; ///running
-		show("Loading...");
-		var req = new XMLHttpRequest();
-		req.open('GET', newURL, true);
-		req.onreadystatechange = function (aEvt) {
-			if (req.readyState == 4) {
-				if (req.status == 200) {
-					if (req.responseText == "1") {
-						$("#whole").replaceWith(clonewhole.clone());
-						remote("show");
-					} else {
-						$("#whole").replaceWith(clonewhole.clone());
-						remote("hide");
-					}
-				} else {
-					show("Error during accessing server. Make sure the ip/port are corrects, and the server is running.");
-				}
-			}
-		};
-		req.send(null);
-	} 
-	catch(err) {
-		show("Error ! Make sure the ip/port are corrects, and the server is running.")
-		return "0";
-	}
+    chrome.storage.local.get(['raspip'], function(result) {
+        var ip = result.raspip || "raspberrypi.local";
+        var newURL = "http://" + ip + ":2020/";
+        show("Connecting to " + ip + "...");
+        
+        fetch(newURL)
+            .then(res => res.text())
+            .then(text => {
+                $("#whole").replaceWith(clonewhole.clone());
+                if (text == "1") remote("show");
+                else remote("hide");
+            })
+            .catch(err => {
+                // Even if test fails, we restore the buttons so the user can still try to cast
+                $("#whole").replaceWith(clonewhole.clone());
+                handlers();
+                show("Warning: Server not reached. Check IP in options.");
+            });
+    });
 }
 
 $( document ).ready(function() {
-	clonewhole = $("#whole").clone(); 
-	test();	
+    clonewhole = $("#whole").clone();
+    handlers(); // Bind handlers immediately so buttons are active
+    test();
 });
