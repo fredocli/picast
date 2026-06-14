@@ -31,7 +31,7 @@ function mkrequest(url, response) {
             .then(text => {
                 if (response == 1) {
                     if (text == "1") notif("RaspberryCast", "Video should now start playing.");
-                    else if (text == "2") notif("RaspberryCast", "Video has been added to queue.");
+                    else if (text == "3") notif("RaspberryCast", "Video has been bookmarked.");
                     else notif("Error", "Please make sure the link is compatible");
                 }
             })
@@ -51,8 +51,8 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 		var cmFunction = result.cmFunction || "stream";
 		var url_encoded_url = encodeURIComponent(info.linkUrl);
 		if (cmFunction == "stream") mkrequest("/stream?url=" + url_encoded_url, 1);
-		else if (cmFunction == "queue") mkrequest("/queue?url=" + url_encoded_url, 1);
 		else if (cmFunction == "music-dl") mkrequest("/music-dl?url=" + url_encoded_url, 1);
+		else if (cmFunction == "bookmark") mkrequest("/bookmark/add?url=" + url_encoded_url, 1);
 	});
 });
 
@@ -66,12 +66,14 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 chrome.commands.onCommand.addListener(function(command) {
-    if (command === "run-music-dl") {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            if (tabs[0] && tabs[0].url) {
-                var url_encoded = encodeURIComponent(tabs[0].url);
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (tabs[0] && tabs[0].url) {
+            var url_encoded = encodeURIComponent(tabs[0].url);
+            if (command === "run-music-dl") {
                 mkrequest("/music-dl?url=" + url_encoded, 1);
+            } else if (command === "run-bookmark") {
+                mkrequest("/bookmark/add?url=" + url_encoded, 1);
             }
-        });
-    }
+        }
+    });
 });

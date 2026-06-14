@@ -37,6 +37,13 @@
         "mac": "Command+Shift+M"
       },
       "description": "Run music-dl on the current page"
+    },
+    "run-bookmark": {
+      "suggested_key": {
+        "default": "Ctrl+B",
+        "mac": "Command+B"
+      },
+      "description": "Bookmark current page on Pi"
     }
   }
 }

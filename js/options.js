@@ -20,8 +20,8 @@ document.addEventListener("DOMContentLoaded", function() {
 		document.getElementById("raspip").value = items.raspip || "raspberrypi.local";
 		
 		if ((items.cmFunction || "stream") === "stream") document.getElementById("cmFstream").checked = true;
-		else if (items.cmFunction === "queue") document.getElementById("cmFqueue").checked = true;
 		else if (items.cmFunction === "music-dl") document.getElementById("cmFmusic").checked = true;
+		else if (items.cmFunction === "bookmark") document.getElementById("cmFbookmark").checked = true;
 	});
 
 	var el = document.getElementById("saveButton");
