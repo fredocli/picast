@@ -22,16 +22,13 @@ function mkrequest(url, response) {
         var ip = result.raspip || "raspberrypi.local";
         var newURL = "http://" + ip + ":2020" + url;
 
-        if (response == 1) {
-            notif("RaspberryCast", "Sending to server: " + newURL);
-        }
+        if (response == 1) notif("RaspberryCast", "Sending to server...");
 
         fetch(newURL)
             .then(res => res.text())
             .then(text => {
                 if (response == 1) {
-                    if (text == "1") notif("RaspberryCast", "Video should now start playing.");
-                    else if (text == "3") notif("RaspberryCast", "Video has been bookmarked.");
+                    if (text == "3") notif("RaspberryCast", "Video has been bookmarked.");
                     else notif("Error", "Please make sure the link is compatible");
                 }
             })
@@ -48,10 +45,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 chrome.contextMenus.onClicked.addListener(function(info) {
 	chrome.storage.local.get(['cmFunction'], function(result) {
-		var cmFunction = result.cmFunction || "stream";
+		var cmFunction = result.cmFunction || "music-dl";
 		var url_encoded_url = encodeURIComponent(info.linkUrl);
-		if (cmFunction == "stream") mkrequest("/stream?url=" + url_encoded_url, 1);
-		else if (cmFunction == "music-dl") mkrequest("/music-dl?url=" + url_encoded_url, 1);
+		if (cmFunction == "music-dl") mkrequest("/music-dl?url=" + url_encoded_url, 1);
 		else if (cmFunction == "bookmark") mkrequest("/bookmark/add?url=" + url_encoded_url, 1);
 	});
 });
@@ -69,10 +65,12 @@ chrome.commands.onCommand.addListener(function(command) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         if (tabs[0] && tabs[0].url) {
             var url_encoded = encodeURIComponent(tabs[0].url);
+            var title_encoded = encodeURIComponent(tabs[0].title);
+			console.log(title_encoded)
             if (command === "run-music-dl") {
                 mkrequest("/music-dl?url=" + url_encoded, 1);
             } else if (command === "run-bookmark") {
-                mkrequest("/bookmark/add?url=" + url_encoded, 1);
+                mkrequest("/bookmark/add?url=" + url_encoded + "&title=" + title_encoded, 1);
             }
         }
     });

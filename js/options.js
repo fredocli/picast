@@ -1,6 +1,6 @@
 function saveSettings() {
 	var raspip = document.getElementById("raspip").value;
-	var cmFunction = "stream";
+	var cmFunction = "music-dl";
 
 	var radios = document.getElementsByName('cmFunction');
 	for (var i = 0, length = radios.length; i < length; i++) {
@@ -19,8 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	chrome.storage.local.get(['raspip', 'cmFunction'], function(items) {
 		document.getElementById("raspip").value = items.raspip || "raspberrypi.local";
 		
-		if ((items.cmFunction || "stream") === "stream") document.getElementById("cmFstream").checked = true;
-		else if (items.cmFunction === "music-dl") document.getElementById("cmFmusic").checked = true;
+		if ((items.cmFunction || "music-dl") === "music-dl") document.getElementById("cmFmusic").checked = true;
 		else if (items.cmFunction === "bookmark") document.getElementById("cmFbookmark").checked = true;
 	});
 
