@@ -17,6 +17,14 @@ function handlers() {
 		});
 	});
 
+	$( "#musicsearch" ).click(function() {
+		chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+			var url_encoded = encodeURIComponent(tabs[0].url);
+			chrome.runtime.sendMessage({action: "mkrequest", url: "/mp3search?url=" + url_encoded, response: 1});
+			window.close();
+		});
+	});
+
 }
 
 function show(message) {

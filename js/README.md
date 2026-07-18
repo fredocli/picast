@@ -12,7 +12,7 @@
 The extension provides three convenient ways to interact with your server:
 
 ### 1. Popup Menu
-Clicking the extension icon opens a small window with dedicated buttons for **Music Download** and **Bookmark**. These actions apply to the currently active tab.
+Clicking the extension icon opens a small window with dedicated buttons for **Music Download**, **Music Search**, and **Bookmark**. These actions apply to the currently active tab.
 
 ### 2. Context Menu
 Right-click any link on a webpage and select **"Send to Rpi."** You can configure in the extension's options whether this action defaults to downloading music or bookmarking the link.
@@ -23,6 +23,7 @@ Use keyboard shortcuts to quickly send the current tab's URL to your server.
 | Action | Windows/Linux | macOS |
 | :--- | :--- | :--- |
 | **Music Download** | `Ctrl+Shift+M` | `Command+Shift+M` |
+| **Music Search** | `Ctrl+Shift+S` | `Command+Shift+S` |
 | **Bookmark Page** | `Ctrl+B` | `Command+B` |
 
 ---
@@ -41,6 +42,10 @@ The extension sends GET requests to the following endpoints on your server (e.g.
 -   **Music Download:**
     -   `GET /music-dl?url=<encoded_url>`
     -   Sends a URL to be downloaded.
+
+-   **Music Search:**
+    -   `GET /mp3search?url=<encoded_url>`
+    -   Sends a URL to be searched.
 
 -   **Bookmark:**
     -   `GET /bookmark/add?url=<encoded_url>&title=<encoded_title>`

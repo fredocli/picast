@@ -47,8 +47,11 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 	chrome.storage.local.get(['cmFunction'], function(result) {
 		var cmFunction = result.cmFunction || "music-dl";
 		var url_encoded_url = encodeURIComponent(info.linkUrl);
-		if (cmFunction == "music-dl") mkrequest("/music-dl?url=" + url_encoded_url, 1);
-		else if (cmFunction == "bookmark") mkrequest("/bookmark/add?url=" + url_encoded_url, 1);
+		if (cmFunction === "music-dl") {
+			mkrequest("/music-dl?url=" + url_encoded_url, 1);
+		} else if (cmFunction === "music-search") {
+			mkrequest("/mp3search?url=" + url_encoded_url, 1);
+		} else if (cmFunction === "bookmark") { mkrequest("/bookmark/add?url=" + url_encoded_url, 1); }
 	});
 });
 
@@ -69,6 +72,8 @@ chrome.commands.onCommand.addListener(function(command) {
 			console.log(title_encoded)
             if (command === "run-music-dl") {
                 mkrequest("/music-dl?url=" + url_encoded, 1);
+            } else if (command === "run-music-search") {
+                mkrequest("/mp3search?url=" + url_encoded, 1);
             } else if (command === "run-bookmark") {
                 mkrequest("/bookmark/add?url=" + url_encoded + "&title=" + title_encoded, 1);
             }

@@ -38,6 +38,13 @@
       },
       "description": "Run music-dl on the current page"
     },
+    "run-music-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Run music search on the current page"
+    },
     "run-bookmark": {
       "suggested_key": {
         "default": "Ctrl+B",
