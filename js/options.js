@@ -1,5 +1,6 @@
 function saveSettings() {
 	var raspip = document.getElementById("raspip").value;
+	var port = parseInt(document.getElementById("port").value, 10) || 2020;
 	var cmFunction = "music-dl";
 
 	var radios = document.getElementsByName('cmFunction');
@@ -9,6 +10,7 @@ function saveSettings() {
 
 	chrome.storage.local.set({
 		raspip: raspip,
+		port: port,
 		cmFunction: cmFunction
 	}, function() {
 		alert("Settings were successfully saved!");
@@ -16,8 +18,9 @@ function saveSettings() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-	chrome.storage.local.get(['raspip', 'cmFunction'], function(items) {
+	chrome.storage.local.get(['raspip', 'port', 'cmFunction'], function(items) {
 		document.getElementById("raspip").value = items.raspip || "raspberrypi.local";
+		document.getElementById("port").value = items.port || "2020";
 		
 		if ((items.cmFunction || "music-dl") === "music-dl") document.getElementById("cmFmusic").checked = true;
 		else if (items.cmFunction === "music-search") document.getElementById("cmFmusicsearch").checked = true;

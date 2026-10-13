@@ -7,7 +7,7 @@ function notif(title, msg) {
 		type: "basic",
 		title: title,
 		message: msg,
-		iconUrl: "img/icon48.png",
+		iconUrl: "../img/icon48.png",
 		priority: 2
 	};
 
@@ -17,19 +17,35 @@ function notif(title, msg) {
 	});
 }
 
-function mkrequest(url, response) {
-    chrome.storage.local.get(['raspip'], function(result) {
+function mkrequest(url, response, options = {}) {
+    chrome.storage.local.get(['raspip', 'port'], function(result) {
         var ip = result.raspip || "raspberrypi.local";
-        var newURL = "http://" + ip + ":2020" + url;
+        var port = parseInt(result.port, 10) || 2020;
+        var newURL = "http://" + ip + ":" + port + url;
 
         if (response == 1) notif("RaspberryCast", "Sending to server...");
 
-        fetch(newURL)
-            .then(res => res.text())
+        const fetchOptions = {
+            method: options.method || 'GET',
+            headers: options.headers || {},
+        };
+
+        if (options.body) {
+            fetchOptions.body = options.body;
+        }
+
+        fetch(newURL, fetchOptions)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.text();
+            })
             .then(text => {
                 if (response == 1) {
                     if (text == "3") notif("RaspberryCast", "Video has been bookmarked.");
-                    else notif("Error", "Please make sure the link is compatible");
+                    else if (url.startsWith('/run')) notif("RaspberryCast", "Request sent successfully.");
+                    else notif("Error", "Please make sure the link is compatible. Response: " + text);
                 }
             })
             .catch(err => notif("Error", "Connection failed: " + err.message));
@@ -37,9 +53,9 @@ function mkrequest(url, response) {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	if (request.action === "mkrequest") {
-		mkrequest(request.url, request.response);
-	}
+    if (request.action === "mkrequest") {
+        mkrequest(request.url, request.response, request.options);
+    }
 });
 
 
@@ -47,11 +63,32 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 	chrome.storage.local.get(['cmFunction'], function(result) {
 		var cmFunction = result.cmFunction || "music-dl";
 		var url_encoded_url = encodeURIComponent(info.linkUrl);
+		var raw_url = info.linkUrl;
 		if (cmFunction === "music-dl") {
-			mkrequest("/music-dl?url=" + url_encoded_url, 1);
+			const options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                body: `music-dl\t${raw_url}`
+            };
+            mkrequest("/run", 1, options);
+			// mkrequest("/music-dl?url=" + url_encoded_url, 1); // old piserver
 		} else if (cmFunction === "music-search") {
-			mkrequest("/mp3search?url=" + url_encoded_url, 1);
-		} else if (cmFunction === "bookmark") { mkrequest("/bookmark/add?url=" + url_encoded_url, 1); }
+			const options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                body: `music-search\t${raw_url}`
+            };
+            mkrequest("/run", 1, options);
+			//mkrequest("/mp3search?url=" + url_encoded_url, 1); // old piserver
+		} else if (cmFunction === "bookmark") { 
+			const options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                body: `bookmark\t${raw_url}`
+            };
+            mkrequest("/run", 1, options);
+			//mkrequest("/bookmark/add?url=" + url_encoded_url, 1); // old piserver
+		}
 	});
 });
 
@@ -68,14 +105,33 @@ chrome.commands.onCommand.addListener(function(command) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         if (tabs[0] && tabs[0].url) {
             var url_encoded = encodeURIComponent(tabs[0].url);
+            var raw_url = tabs[0].url;
             var title_encoded = encodeURIComponent(tabs[0].title);
 			console.log(title_encoded)
             if (command === "run-music-dl") {
-                mkrequest("/music-dl?url=" + url_encoded, 1);
+                const options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: `music-dl\t${raw_url}`
+                };
+                mkrequest("/run", 1, options);
+				//mkrequest("/music-dl?url=" + url_encoded, 1);		// old piserver
             } else if (command === "run-music-search") {
-                mkrequest("/mp3search?url=" + url_encoded, 1);
+                const options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: `music-search\t${raw_url}`
+                };
+                mkrequest("/run", 1, options);		
+				//mkrequest("/mp3search?url=" + url_encoded, 1);		// old piserver
             } else if (command === "run-bookmark") {
-                mkrequest("/bookmark/add?url=" + url_encoded + "&title=" + title_encoded, 1);
+				const options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: `bookmark\t${raw_url}`
+                };
+                mkrequest("/run", 1, options);
+                // mkrequest("/bookmark/add?url=" + url_encoded + "&title=" + title_encoded, 1); // old piserver
             }
         }
     });
